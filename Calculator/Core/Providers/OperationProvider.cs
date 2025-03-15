@@ -5,7 +5,8 @@ namespace Calculator.Core.Providers;
 
 public class OperationProvider : IOperationProvider
 {
-    private static readonly IReadOnlyDictionary<string, IOperation> Operations = new Dictionary<string, IOperation>
+    private static readonly IReadOnlyDictionary<string, IOperation> Operations = 
+        new Dictionary<string, IOperation>
     {
         { "+", new Addition() },
         { "−", new Subtraction() },
@@ -14,7 +15,8 @@ public class OperationProvider : IOperationProvider
         { "%", new Percentage() }
     };
 
-    private static readonly IReadOnlyDictionary<string, IUnaryOperation> UnaryOperations = new Dictionary<string, IUnaryOperation>
+    private static readonly IReadOnlyDictionary<string, IUnaryOperation> UnaryOperations = 
+        new Dictionary<string, IUnaryOperation>
     {
         { "√", new SquareRoot() },
         { "+/-", new Negation() }

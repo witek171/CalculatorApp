@@ -2,28 +2,23 @@
 
 namespace Calculator.Core.Service;
 
-public class CalculatorService
+public class CalculatorService(
+    ICalculatorUtils calculatorUtils,
+    IOperationProvider operationProvider
+)
 {
-    private readonly ICalculatorUtils _calculatorUtils;
-    private readonly IReadOnlyDictionary<string, IOperation> _operations;
-    private readonly IReadOnlyDictionary<string, IUnaryOperation> _unaryOperations;
-    
+    private readonly IReadOnlyDictionary<string, IOperation> _operations =
+        operationProvider.GetOperations();
+
+    private readonly IReadOnlyDictionary<string, IUnaryOperation> _unaryOperations =
+        operationProvider.GetUnaryOperations();
+
     private double _currentValue;
     private double _previousValue;
     private string _currentOperator = string.Empty;
     private bool _isNewEntry = true;
     private bool _isError;
     private const int MaxDisplayLength = 11;
-
-    public CalculatorService(
-        ICalculatorUtils calculatorUtils,
-        IOperationProvider operationProvider
-        )
-    {
-        _calculatorUtils = calculatorUtils;
-        _operations = operationProvider.GetOperations();
-        _unaryOperations = operationProvider.GetUnaryOperations();
-    }
 
     public string ProcessNumber(string input, string number)
     {
@@ -34,13 +29,9 @@ public class CalculatorService
         }
 
         if (_isNewEntry || input == "0")
-        {
             input = number;
-        }
         else if (input.Length < MaxDisplayLength)
-        {
             input += number;
-        }
 
         _isNewEntry = false;
         return input;
@@ -48,9 +39,9 @@ public class CalculatorService
 
     public string ProcessOperator(string input, string op)
     {
-        if (!_calculatorUtils.TryParseInput(input, out _previousValue))
+        if (!calculatorUtils.TryParseInput(input, out _previousValue))
             return input;
-        
+
         _currentOperator = op;
         _isNewEntry = true;
         return input;
@@ -58,41 +49,34 @@ public class CalculatorService
 
     public string Calculate(string input)
     {
-        if (!_calculatorUtils.TryParseInput(input, out _currentValue) || string.IsNullOrEmpty(_currentOperator))
+        if (
+            !calculatorUtils.TryParseInput(input, out _currentValue) ||
+            string.IsNullOrEmpty(_currentOperator)
+        )
             return input;
 
         if (!_operations.TryGetValue(_currentOperator, out var operation))
             return input;
 
+        if (_currentValue == 0)
+        {
+            _isError = true;
+            return "Can not divide by 0";
+        }
+
         double result;
 
-        try
+        if (!_isNewEntry)
         {
-            if (!_isNewEntry)
-            {
-                result = operation.Execute(_previousValue, _currentValue);
-                _previousValue = _currentValue;
-            }
-            else
-            {
-                result = operation.Execute(_currentValue, _previousValue);
-            }
+            result = operation.Execute(_previousValue, _currentValue);
+            _previousValue = _currentValue;
         }
-        catch (DivideByZeroException e)
-        {
-            _isError = true;
-            return e.Message;
-        }
-        catch (Exception)
-        {
-            _isError = true;
-            return "Error";
-        }
+        else
+            result = operation.Execute(_currentValue, _previousValue);
 
         _currentValue = result;
         _isNewEntry = true;
-
-        return _calculatorUtils.FormatResult(result);
+        return calculatorUtils.FormatResult(result);
     }
 
     public string Clear()
@@ -107,47 +91,37 @@ public class CalculatorService
     public string Negate(string input)
     {
         if (
-            !_calculatorUtils.TryParseInput(input, out var value) ||
+            !calculatorUtils.TryParseInput(input, out var value) ||
             System.Text.RegularExpressions.Regex.IsMatch(input, @"^0,?0*$")
         )
-        {
-            return input;
-        }
-
-        if (!_unaryOperations.TryGetValue("+/-", out var operation))
             return input;
         
+        if (!_unaryOperations.TryGetValue("+/-", out var operation))
+            return input;
+
         value = operation.Execute(value);
-        return _calculatorUtils.FormatResult(value);
+        return calculatorUtils.FormatResult(value);
     }
 
     public string SquareRoot(string input)
     {
-        if (!_calculatorUtils.TryParseInput(input, out var value))
+        if (!calculatorUtils.TryParseInput(input, out var value))
         {
             _isError = true;
             return "Error";
         }
 
-        if (!_unaryOperations.TryGetValue("√", out var operation)) 
+        if (!_unaryOperations.TryGetValue("√", out var operation))
             return input;
 
-        try
-        {
-            value = operation.Execute(value);
-        }
-        catch (ArgumentException e)
+        if (value < 0)
         {
             _isError = true;
-            return e.Message;
-        }
-        catch (Exception)
-        {
-            _isError = true;
-            return "Error";
+            return "Cannot calculate square root of negative number";
         }
 
-        return _calculatorUtils.FormatResult(value);
+        value = operation.Execute(value);
+        return calculatorUtils.FormatResult(value);
     }
 
     public string AddDecimal(string input)
