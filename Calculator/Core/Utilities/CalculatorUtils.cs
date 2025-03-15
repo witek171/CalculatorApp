@@ -19,10 +19,14 @@ public class CalculatorUtils : ICalculatorUtils
     {
         if (Math.Abs(value) >= 1e12 || (Math.Abs(value) < 1e-3 && value != 0))
         {
-            return value.ToString("0.#####E+0", CultureInfo.InvariantCulture).Replace(".", ",");
+            return value.ToString("0.#####E+0", CultureInfo.InvariantCulture)
+                .Replace(".", ",");
         }
 
-        var formatted = value.ToString("G12", CultureInfo.InvariantCulture).Replace(".", ",");
+        var formatted = value.ToString("G12", CultureInfo.InvariantCulture)
+            .Replace(".", ",")
+            .TrimEnd('0')
+            .TrimEnd(',');
         var maxLength = value < 0 ? 13 : 12;
 
         return formatted.Length > maxLength ? formatted[..maxLength] : formatted;
