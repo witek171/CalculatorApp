@@ -1,4 +1,5 @@
 ﻿using Calculator.Core.Interfaces;
+using Calculator.Core.Operations;
 
 namespace Calculator.Core.Service;
 
@@ -18,7 +19,7 @@ public class CalculatorService(
     private string _currentOperator = string.Empty;
     private bool _isNewEntry = true;
     private bool _isError;
-    private const int MaxDisplayLength = 11;
+    private const int MaxDisplayLength = 12;
 
     public string ProcessNumber(string input, string number)
     {
@@ -28,8 +29,13 @@ public class CalculatorService(
             return number;
         }
 
-        if (_isNewEntry || input == "0")
+        if (
+            _isNewEntry ||
+            input == "0" ||
+            calculatorUtils.IsScientificNotation(input)
+        )
             input = number;
+
         else if (input.Length < MaxDisplayLength)
             input += number;
 
@@ -92,11 +98,13 @@ public class CalculatorService(
     {
         if (
             !calculatorUtils.TryParseInput(input, out var value) ||
-            System.Text.RegularExpressions.Regex.IsMatch(input, @"^0,?0*$")
+            calculatorUtils.IsZeroInput(input)
         )
             return input;
-        
-        if (!_unaryOperations.TryGetValue("+/-", out var operation))
+
+        var negationSymbol = _unaryOperations
+            .FirstOrDefault(kvp => kvp.Value is Negation).Key;
+        if (!_unaryOperations.TryGetValue(negationSymbol, out var operation))
             return input;
 
         value = operation.Execute(value);
@@ -111,13 +119,15 @@ public class CalculatorService(
             return "Error";
         }
 
-        if (!_unaryOperations.TryGetValue("√", out var operation))
+        var squareRootSymbol = _unaryOperations
+            .FirstOrDefault(kvp => kvp.Value is SquareRoot).Key;
+        if (!_unaryOperations.TryGetValue(squareRootSymbol, out var operation))
             return input;
 
         if (value < 0)
         {
             _isError = true;
-            return "Cannot calculate square root of negative number";
+            return "Can not calculate square root of negative number";
         }
 
         value = operation.Execute(value);
@@ -126,11 +136,32 @@ public class CalculatorService(
 
     public string AddDecimal(string input)
     {
-        if (!_isNewEntry && !_isError)
+        if (
+            !_isNewEntry &&
+            !_isError &&
+            !calculatorUtils.IsScientificNotation(input)
+        )
             return input.Contains(',') || input.Length >= MaxDisplayLength ? input : input + ",";
 
         _isNewEntry = false;
         _isError = false;
         return "0,";
+    }
+
+    public string Backspace(string input)
+    {
+        if (calculatorUtils.IsScientificNotation(input))
+            return input;
+
+        if (
+            input != "-0," &&
+            !_isError &&
+            input.Length != 1 &&
+            !(input.Length == 2 && input.Contains('-'))
+        )
+            return input[..^1];
+
+        _isError = false;
+        return "0";
     }
 }

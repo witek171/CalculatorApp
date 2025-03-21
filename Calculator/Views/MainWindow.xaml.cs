@@ -70,6 +70,11 @@ public partial class MainWindow
     {
         Display.Text = _calculator.AddDecimal(Display.Text);
     }
+    
+    private void Backspace_Click(object sender, RoutedEventArgs e)
+    {
+        Display.Text = _calculator.Backspace(Display.Text);
+    }
 
     private void Display_TextChanged(object sender, TextChangedEventArgs e)
     {
@@ -81,7 +86,7 @@ public partial class MainWindow
             {
                 < 14 => 46,
                 < 45 => 35,
-                _ => 12.8
+                _ => 14.48
             };
         }
     }

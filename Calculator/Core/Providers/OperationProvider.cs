@@ -18,7 +18,7 @@ public class OperationProvider : IOperationProvider
     private static readonly IReadOnlyDictionary<string, IUnaryOperation> UnaryOperations = 
         new Dictionary<string, IUnaryOperation>
     {
-        { "√", new SquareRoot() },
+        { "√x", new SquareRoot() },
         { "+/-", new Negation() }
     };
 
