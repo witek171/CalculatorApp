@@ -2,6 +2,5 @@
 
 public interface IUnaryOperation
 {
-    string Symbol { get; }
     double Execute(double a);
 }
