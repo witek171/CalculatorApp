@@ -20,7 +20,7 @@ public class CalculatorUtils : ICalculatorUtils
     {
         if (Math.Abs(value) >= 1e12 || (Math.Abs(value) < 1e-3 && value != 0))
         {
-            return value.ToString("0.#####e+0", CultureInfo.InvariantCulture)
+            return value.ToString("0.#####E+0", CultureInfo.InvariantCulture)
                 .Replace(".", ",");
         }
 
@@ -29,11 +29,6 @@ public class CalculatorUtils : ICalculatorUtils
         var maxLength = value < 0 ? 13 : 12;
 
         return formatted.Length > maxLength ? formatted[..maxLength] : formatted;
-    }
-    
-    public bool IsZeroInput(string input)
-    {
-        return RegexProvider.ZeroRegex().IsMatch(input);
     }
 
     public bool IsScientificNotation(string input)

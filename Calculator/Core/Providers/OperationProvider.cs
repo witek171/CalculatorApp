@@ -19,7 +19,9 @@ public class OperationProvider : IOperationProvider
         new Dictionary<string, IUnaryOperation>
     {
         { "√x", new SquareRoot() },
-        { "+/-", new Negation() }
+        { "¹⁄ₓ", new Inversion() },
+        { "+/-", new Negation() },
+        { "x²", new PowerOfTwo() }
     };
 
     public IReadOnlyDictionary<string, IOperation> GetOperations() => Operations;
