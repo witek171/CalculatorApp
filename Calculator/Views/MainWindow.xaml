@@ -8,7 +8,7 @@
         Title="Calculator"
         Height="480"
         MinHeight="480"
-        Width="355"
+        Width="368"
         MinWidth="355"
         Icon="/Assets/calculator_icon.ico"
         Background="LightBlue"
@@ -25,11 +25,27 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                CornerRadius="5">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center" />
-                        </Border>
+                        <Grid>
+                            <Border Background="{TemplateBinding Background}"
+                                    CornerRadius="3"
+                                    Padding="5">
+                                <Border.Effect>
+                                    <DropShadowEffect Color="Black"
+                                                      BlurRadius="4"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.3" />
+                                </Border.Effect>
+                            </Border>
+                            <Border Background="Transparent"
+                                    CornerRadius="3"
+                                    Padding="5">
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="{TemplateBinding FontSize}"
+                                           Foreground="{TemplateBinding Foreground}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center" />
+                            </Border>
+                        </Grid>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -71,10 +87,10 @@
             <Button Content="CE" Grid.Row="0" Grid.Column="1" />
             <Button Content="C" Grid.Row="0" Grid.Column="2" Click="Clear_Click" />
             <Button Content="←" Grid.Row="0" Grid.Column="3" Click="Backspace_Click" />
-            
-            <Button Content="¹⁄ₓ" Grid.Row="1" Grid.Column="0" />
-            <Button Content="x²" Grid.Row="1" Grid.Column="1" />
-            <Button Content="√x" Grid.Row="1" Grid.Column="2" Click="Sqrt_Click" />
+
+            <Button Content="¹⁄ₓ" Grid.Row="1" Grid.Column="0" Click="UnaryOperator_Click" />
+            <Button Content="x²" Grid.Row="1" Grid.Column="1" Click="UnaryOperator_Click" />
+            <Button Content="√x" Grid.Row="1" Grid.Column="2" Click="UnaryOperator_Click" />
             <Button Content="÷" Grid.Row="1" Grid.Column="3" Click="Operator_Click" />
 
             <Button Content="7" Grid.Row="2" Grid.Column="0" Click="Number_Click" />
@@ -92,36 +108,49 @@
             <Button Content="3" Grid.Row="4" Grid.Column="2" Click="Number_Click" />
             <Button Content="+" Grid.Row="4" Grid.Column="3" Click="Operator_Click" />
 
-            <Button Content="+/-" Grid.Row="5" Grid.Column="0" Click="Negate_Click" />
+            <Button Content="+/-" Grid.Row="5" Grid.Column="0" Click="UnaryOperator_Click" />
             <Button Content="0" Grid.Row="5" Grid.Column="1" Click="Number_Click" />
             <Button Content="," Grid.Row="5" Grid.Column="2" Click="Decimal_Click" />
             <Button Content="=" Grid.Row="5" Grid.Column="3" Click="Equals_Click" />
 
         </Grid>
-        
+
         <Border
-            Grid.Row="0" 
+            Grid.Row="0"
             Background="White"
             BorderBrush="Gray"
             BorderThickness="1"
-            CornerRadius="5"
+            CornerRadius="3"
             Padding="5"
             Margin="3,3,3,0">
-            
+
+            <Grid>
+                <!-- OperationDisplay -->
+                <TextBlock x:Name="OperationDisplay"
+                           FontSize="16"
+                           Foreground="Gray"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Top"
+                           Margin="5,2,5,0"
+                           Text="" />
+
+                <!-- Display -->
                 <TextBox x:Name="Display"
                          FontSize="46"
-                         Height="65"
-                         Text="0"
+                         FontWeight="SemiBold"
+                         Height="90"
                          Background="Transparent"
                          BorderThickness="0"
                          HorizontalContentAlignment="Right"
-                         HorizontalAlignment="Stretch"
-                         VerticalAlignment="Top"
-                         VerticalContentAlignment="Center"
+                         VerticalAlignment="Bottom"
+                         VerticalContentAlignment="Bottom"
                          TextAlignment="Right"
+                         Padding="0,0,0,5"
                          MaxLength="12"
                          TextChanged="Display_TextChanged"
-                         IsReadOnly="True" />
+                         IsReadOnly="True"
+                         Text="0" />
+            </Grid>
         </Border>
     </Grid>
 </Window>

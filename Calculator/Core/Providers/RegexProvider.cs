@@ -2,9 +2,6 @@
 
 public partial class RegexProvider
 {
-    [System.Text.RegularExpressions.GeneratedRegex(@"^0,?0*$")]
-    public static partial System.Text.RegularExpressions.Regex ZeroRegex();
-
-    [System.Text.RegularExpressions.GeneratedRegex(@"^-?\d+([.,]\d+)?[e][+-]?\d+$")]
+    [System.Text.RegularExpressions.GeneratedRegex(@"^-?\d+([.,]\d+)?[E][+-]?\d+$")]
     public static partial System.Text.RegularExpressions.Regex ScientificNotationRegex();
 }

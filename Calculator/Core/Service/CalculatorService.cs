@@ -1,5 +1,4 @@
 ﻿using Calculator.Core.Interfaces;
-using Calculator.Core.Operations;
 
 namespace Calculator.Core.Service;
 
@@ -17,9 +16,11 @@ public class CalculatorService(
     private double _currentValue;
     private double _previousValue;
     private string _currentOperator = string.Empty;
-    private bool _isNewEntry = true;
+    private bool _isNewEntry = true; // Flag indicating if the user is entering a new number after an operation or reset
     private bool _isError;
     private const int MaxDisplayLength = 12;
+
+    public string OperationExpression { get; private set; } = string.Empty;
 
     public string ProcessNumber(string input, string number)
     {
@@ -50,88 +51,63 @@ public class CalculatorService(
 
         _currentOperator = op;
         _isNewEntry = true;
+        OperationExpression = $"{_previousValue} {_currentOperator}";
         return input;
     }
 
-    public string Calculate(string input)
+    public (string result, string operationText) Calculate(string input)
     {
-        if (
-            !calculatorUtils.TryParseInput(input, out _currentValue) ||
-            string.IsNullOrEmpty(_currentOperator)
-        )
-            return input;
-
-        if (!_operations.TryGetValue(_currentOperator, out var operation))
-            return input;
-
-        if (_currentValue == 0)
-        {
-            _isError = true;
-            return "Can not divide by 0";
-        }
+        if (!calculatorUtils.TryParseInput(input, out _currentValue))
+            return (input, "");
 
         double result;
+        string operationText;
 
-        if (!_isNewEntry)
+        try
         {
-            result = operation.Execute(_previousValue, _currentValue);
-            _previousValue = _currentValue;
-        }
-        else
-            result = operation.Execute(_currentValue, _previousValue);
+            // calculate unary operation
+            if (_unaryOperations.TryGetValue(_currentOperator, out var unaryOperation))
+            {
+                result = unaryOperation.Execute(_currentValue);
+                operationText = $"{unaryOperation.Symbol}({_currentValue})";
+            }
+            // calculate binary operation
+            else if (_operations.TryGetValue(_currentOperator, out var operation))
+            {
+                if (!_isNewEntry)
+                {
+                    result = operation.Execute(_previousValue, _currentValue);
+                    operationText = $"{_previousValue} {_currentOperator} {_currentValue} =";
+                    _previousValue = _currentValue;
+                }
+                else
+                {
+                    result = operation.Execute(_currentValue, _previousValue);
+                    operationText = $"{_currentValue} {_currentOperator} {_previousValue} =";
+                }
 
-        _currentValue = result;
-        _isNewEntry = true;
-        return calculatorUtils.FormatResult(result);
+                _currentValue = result;
+                _isNewEntry = true;
+            }
+            else return (input, "");
+        }
+        catch (Exception e)
+        {
+            _isError = true;
+            return (e.Message, "");
+        }
+
+        return (calculatorUtils.FormatResult(result), operationText);
     }
 
     public string Clear()
     {
+        OperationExpression = string.Empty;
         _currentValue = _previousValue = 0;
         _currentOperator = string.Empty;
         _isNewEntry = true;
         _isError = false;
         return "0";
-    }
-
-    public string Negate(string input)
-    {
-        if (
-            !calculatorUtils.TryParseInput(input, out var value) ||
-            calculatorUtils.IsZeroInput(input)
-        )
-            return input;
-
-        var negationSymbol = _unaryOperations
-            .FirstOrDefault(kvp => kvp.Value is Negation).Key;
-        if (!_unaryOperations.TryGetValue(negationSymbol, out var operation))
-            return input;
-
-        value = operation.Execute(value);
-        return calculatorUtils.FormatResult(value);
-    }
-
-    public string SquareRoot(string input)
-    {
-        if (!calculatorUtils.TryParseInput(input, out var value))
-        {
-            _isError = true;
-            return "Error";
-        }
-
-        var squareRootSymbol = _unaryOperations
-            .FirstOrDefault(kvp => kvp.Value is SquareRoot).Key;
-        if (!_unaryOperations.TryGetValue(squareRootSymbol, out var operation))
-            return input;
-
-        if (value < 0)
-        {
-            _isError = true;
-            return "Can not calculate square root of negative number";
-        }
-
-        value = operation.Execute(value);
-        return calculatorUtils.FormatResult(value);
     }
 
     public string AddDecimal(string input)
@@ -145,19 +121,23 @@ public class CalculatorService(
 
         _isNewEntry = false;
         _isError = false;
+        OperationExpression = string.Empty;
         return "0,";
     }
 
     public string Backspace(string input)
     {
-        if (calculatorUtils.IsScientificNotation(input))
+        if (
+            calculatorUtils.IsScientificNotation(input) ||
+            (_isNewEntry && !_isError)
+        )
             return input;
 
         if (
             input != "-0," &&
             !_isError &&
             input.Length != 1 &&
-            !(input.Length == 2 && input.Contains('-'))
+            !(input.Length == 2 && input.StartsWith('-'))
         )
             return input[..^1];
 

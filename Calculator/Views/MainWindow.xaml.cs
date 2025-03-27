@@ -15,8 +15,8 @@ public partial class MainWindow
     {
         InitializeComponent();
         var calculatorUtils = new CalculatorUtils();
-        var operationFactory = new OperationProvider();
-        _calculator = new CalculatorService(calculatorUtils, operationFactory);
+        var operationProvider = new OperationProvider();
+        _calculator = new CalculatorService(calculatorUtils, operationProvider);
     }
 
     private void Window_KeyDown(object sender, KeyEventArgs e)
@@ -43,34 +43,42 @@ public partial class MainWindow
         {
             var operation = button.Content.ToString();
             Display.Text = _calculator.ProcessOperator(Display.Text, operation!);
+            OperationDisplay.Text = _calculator.OperationExpression;
         }
     }
 
     private void Equals_Click(object sender, RoutedEventArgs e)
     {
-        Display.Text = _calculator.Calculate(Display.Text);
+        var (result, operationText) = _calculator.Calculate(Display.Text);
+        Display.Text = result;
+        OperationDisplay.Text = operationText;
+    }
+
+    private void UnaryOperator_Click(object sender, RoutedEventArgs e)
+    {
+        if (sender is Button button)
+        {
+            var operation = button.Content.ToString();
+            Display.Text = _calculator.ProcessOperator(Display.Text, operation!);
+            OperationDisplay.Text = _calculator.OperationExpression;
+        }
+
+        var (result, operationText) = _calculator.Calculate(Display.Text);
+        Display.Text = result;
+        OperationDisplay.Text = operationText;
     }
 
     private void Clear_Click(object sender, RoutedEventArgs e)
     {
         Display.Text = _calculator.Clear();
-    }
-
-    private void Negate_Click(object sender, RoutedEventArgs e)
-    {
-        Display.Text = _calculator.Negate(Display.Text);
-    }
-
-    private void Sqrt_Click(object sender, RoutedEventArgs e)
-    {
-        Display.Text = _calculator.SquareRoot(Display.Text);
+        OperationDisplay.Text = string.Empty;
     }
 
     private void Decimal_Click(object sender, RoutedEventArgs e)
     {
         Display.Text = _calculator.AddDecimal(Display.Text);
     }
-    
+
     private void Backspace_Click(object sender, RoutedEventArgs e)
     {
         Display.Text = _calculator.Backspace(Display.Text);
@@ -85,8 +93,8 @@ public partial class MainWindow
             textBox.FontSize = length switch
             {
                 < 14 => 46,
-                < 45 => 35,
-                _ => 14.48
+                < 45 => 38,
+                _ => 14.33
             };
         }
     }
