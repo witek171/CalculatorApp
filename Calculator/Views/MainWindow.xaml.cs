@@ -73,6 +73,12 @@ public partial class MainWindow
         Display.Text = _calculator.Clear();
         OperationDisplay.Text = string.Empty;
     }
+    
+    private void ClearEnter_Click(object sender, RoutedEventArgs e)
+    {
+        Display.Text = _calculator.ClearEnter();
+        OperationDisplay.Text = string.Empty;
+    }
 
     private void Decimal_Click(object sender, RoutedEventArgs e)
     {

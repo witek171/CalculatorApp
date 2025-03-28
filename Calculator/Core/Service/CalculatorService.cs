@@ -1,4 +1,5 @@
 ﻿using Calculator.Core.Interfaces;
+using Calculator.Core.Operations;
 
 namespace Calculator.Core.Service;
 
@@ -16,7 +17,8 @@ public class CalculatorService(
     private double _currentValue;
     private double _previousValue;
     private string _currentOperator = string.Empty;
-    private bool _isNewEntry = true; // Flag indicating if the user is entering a new number after an operation or reset
+    // Flag indicating if the user is entering a new number after an operation or reset, if flag is false we can append a number to the result
+    private bool _isNewEntry = true;
     private bool _isError;
     private const int MaxDisplayLength = 12;
 
@@ -46,15 +48,16 @@ public class CalculatorService(
 
     public string ProcessOperator(string input, string op)
     {
-        if (!calculatorUtils.TryParseInput(input, out _previousValue))
-            return input;
+        if (calculatorUtils.TryParseInput(input, out _previousValue))
+        {
+            _currentOperator = op;
+            _isNewEntry = true;
+            OperationExpression = $"{_previousValue} {_currentOperator}";
+        }
 
-        _currentOperator = op;
-        _isNewEntry = true;
-        OperationExpression = $"{_previousValue} {_currentOperator}";
         return input;
     }
-
+    
     public (string result, string operationText) Calculate(string input)
     {
         if (!calculatorUtils.TryParseInput(input, out _currentValue))
@@ -68,6 +71,9 @@ public class CalculatorService(
             // calculate unary operation
             if (_unaryOperations.TryGetValue(_currentOperator, out var unaryOperation))
             {
+                if (unaryOperation is Negation)
+                    _isNewEntry = false;
+
                 result = unaryOperation.Execute(_currentValue);
                 operationText = $"{unaryOperation.Symbol}({_currentValue})";
             }
@@ -100,15 +106,19 @@ public class CalculatorService(
         return (calculatorUtils.FormatResult(result), operationText);
     }
 
-    public string Clear()
+    public string Clear(bool fullReset = true)
     {
-        OperationExpression = string.Empty;
-        _currentValue = _previousValue = 0;
+        if (fullReset)
+            _previousValue = 0;
+
+        _currentValue = 0;
         _currentOperator = string.Empty;
         _isNewEntry = true;
         _isError = false;
         return "0";
     }
+
+    public string ClearEnter() => Clear(fullReset: false);
 
     public string AddDecimal(string input)
     {
