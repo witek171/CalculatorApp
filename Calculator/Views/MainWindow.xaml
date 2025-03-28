@@ -7,8 +7,8 @@
         Title="Calculator"
         Height="480"
         MinHeight="480"
-        Width="368"
-        MinWidth="368"
+        Width="375"
+        MinWidth="375"
         Icon="/Assets/calculator_icon.ico"
         Background="LightBlue"
         KeyDown="Window_KeyDown">

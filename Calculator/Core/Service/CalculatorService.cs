@@ -109,10 +109,12 @@ public class CalculatorService(
     public string Clear(bool fullReset = true)
     {
         if (fullReset)
+        {
             _previousValue = 0;
+            _currentOperator = string.Empty;
+        }
 
         _currentValue = 0;
-        _currentOperator = string.Empty;
         _isNewEntry = true;
         _isError = false;
         return "0";
