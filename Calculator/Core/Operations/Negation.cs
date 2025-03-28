@@ -1,5 +1,4 @@
 ﻿using Calculator.Core.Interfaces;
-using Calculator.Core.Providers;
 
 namespace Calculator.Core.Operations;
 
