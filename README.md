@@ -13,8 +13,15 @@ A simple calculator application built using C# and WPF. This project was created
 - WPF (Windows Presentation Foundation)
 - MVVM Architecture
   
-<img src="https://github.com/user-attachments/assets/f5c5b6a5-2193-4edd-a595-f5abf2c53921" alt="Calculator Screenshot" 
-  style="float: left;
-  border-radius: 20%;
-  margin-right: 15px; 
-  margin-bottom: 10px;" />
+<!-- HTML -->
+<img src="https://github.com/user-attachments/assets/f5c5b6a5-2193-4edd-a595-f5abf2c53921" alt="Calculator Screenshot" class="rounded-image" />
+
+<!-- CSS -->
+<style>
+  .rounded-image {
+    float: left;
+    border-radius: 20px; 
+    margin-right: 15px;
+    margin-bottom: 10px;
+  }
+</style>
