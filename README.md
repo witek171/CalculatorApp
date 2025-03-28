@@ -12,3 +12,4 @@ A simple calculator application built using C# and WPF. This project was created
 - C# (.NET)
 - WPF (Windows Presentation Foundation)
 - MVVM Architecture
+![Image](https://github.com/user-attachments/assets/f5c5b6a5-2193-4edd-a595-f5abf2c53921)
