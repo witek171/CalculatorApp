@@ -15,6 +15,6 @@ A simple calculator application built using C# and WPF. This project was created
   
 <img src="https://github.com/user-attachments/assets/f5c5b6a5-2193-4edd-a595-f5abf2c53921" alt="Calculator Screenshot" 
   style="float: left;
-  border-radius: 10px;
+  border-radius: 15px;
   margin-right: 15px; 
   margin-bottom: 10px;" />
